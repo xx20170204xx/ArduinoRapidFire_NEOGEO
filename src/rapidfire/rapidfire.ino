@@ -1,8 +1,7 @@
 /* 
  * Arduino Rapid Fire for NEOGEO
  * 
- * Pro Micro ( from SparkFun )
- * ※Arduino Leonardo互換ボード
+ * Arduino Leonardo
  * 
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  * @version    20200422
@@ -21,11 +20,11 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval);
 
 
 /******************************************************************************/
-int g_autoPin = A2;
-int g_clearPin = A3;
+int g_autoPin = A0;
+int g_clearPin = A1;
 
 /* 入力Pin */
-int g_inputs[BTN] = { 10, 16, 14, 15, A0, A1 }; // 入力Pin
+int g_inputs[BTN] = { A2, A3, A4, A5,  8,  9 }; // 入力Pin
 
 /*
  * 出力Pin
@@ -47,7 +46,7 @@ int g_outputs[BTN] = { 2, 3, 4, 5, 6, 7 }; // 出力Pin
  * 6 : 8.6 = 60 / (6 + 1)
  * 7 : 7.5 = 60 / (7 + 1)
 */
-int g_timings[BTN] = { 1, 1, 1, 3, 1, 1 };
+int g_timings[BTN] = { 1, 1, 1, 1, 1, 1 };
 
 /* 
  *  割り当て指定
@@ -59,7 +58,7 @@ int g_timings[BTN] = { 1, 1, 1, 3, 1, 1 };
  *  ※連射速度は、押したボタンの設定を使う。
  *  int g_bind[BTN] = { 3, 4, 5, -1, -1, -1 };
 */
-int g_bind[BTN] = { 3, 4, 5, -1, -1, -1 };
+int g_bind[BTN] = { -1, -1, -1, -1, -1, -1 };
 
 /*
  * 連射用カウンター
