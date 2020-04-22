@@ -5,6 +5,8 @@
  * 
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  * @version    20200422
+ * 
+ * Git : https://github.com/xx20170204xx/ArduinoRapidFire_NEOGEO
  */
 
 // ボタン数
