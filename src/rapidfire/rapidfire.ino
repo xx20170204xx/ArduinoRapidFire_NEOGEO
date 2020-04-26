@@ -72,6 +72,7 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval);
 /******************************************************************************/
 int g_autoPin = A0;
 int g_clearPin = A1;
+int g_syncINPin = -1;
 
 SBTNINFO g_BtnInfo[BTN] = {
   /*In Ot Ti  Bi  -  - */
@@ -101,6 +102,16 @@ void setup() {
   Serial.print( "Clear pin=[" );
   Serial.print( g_clearPin );
   Serial.println( "]" );
+
+  // クロック入力
+  if( g_syncINPin == -1 )
+  {
+    pinMode(g_syncINPin, INPUT);
+    digitalWrite(g_syncINPin, LOW);
+    Serial.print( "Sync Input pin=[" );
+    Serial.print( g_syncINPin );
+    Serial.println( "]" );
+  }
 
   /* check bind setting start */
   /*
@@ -175,8 +186,16 @@ void loop() {
   }else{
     oneStep();
   }
-  
-  delay(g_delay1);
+
+  if( g_syncINPin != -1 ){
+    int ret = VSyncWait();
+    if( ret != 0 )
+    {
+      delay(g_delay1);
+    }
+  }else{
+    delay(g_delay1);
+  }
 } /* loop */
 
 /******************************************************************************/
@@ -203,6 +222,33 @@ void autoSetup(void)
   }
 
 } /* autoSetup */
+
+/******************************************************************************/
+int VSyncWait(void)
+{
+  //int s = millis();
+  int st = LOW;
+  int stbk = LOW;
+  int flag = 2;
+  if( g_syncINPin == -1 )
+  {
+    return 1;
+  }
+  
+  stbk = digitalRead(g_syncINPin);
+  while( flag > 0 )
+  {
+    delay(1);
+    st = digitalRead(g_syncINPin);
+    if( st != stbk )
+    {
+      flag -= 1;
+    }
+    stbk = st;
+  }
+  
+  return 0;
+} /* VSyncWait */
 
 /******************************************************************************/
 void autoClear(void)
