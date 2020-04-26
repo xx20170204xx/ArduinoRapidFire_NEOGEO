@@ -63,6 +63,7 @@ typedef struct SBTNINFO
 } SBTNINFO;
 
 /******************************************************************************/
+int VSyncWait(void);
 void autoSetup(void);
 void autoClear(void);
 void oneStep(void);
