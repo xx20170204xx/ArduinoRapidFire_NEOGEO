@@ -14,6 +14,54 @@
 
 #define g_delay1 (1000 / 60)
 
+typedef struct SBTNINFO
+{
+  /* 入力Pin */
+  int inputPin;
+
+  /*
+   * 出力Pin
+   * 
+   * 出力するPinの番号を設定する
+   * -1の場合、出力しない
+  */
+  int outputPin;
+
+  /*
+   * 連射速度
+   * 
+   * 連射する速度を設定することできる。
+   * 1 : 30  = 60 / (1 + 1)
+   * 2 : 20  = 60 / (2 + 1)
+   * 3 : 15  = 60 / (3 + 1)
+   * 4 : 12  = 60 / (4 + 1)
+   * 5 : 10  = 60 / (5 + 1)
+   * 6 : 8.6 = 60 / (6 + 1)
+   * 7 : 7.5 = 60 / (7 + 1)
+  */
+  int timing;
+
+  /* 
+   *  割り当て指定
+   *  
+   *  連射専用のボタンを割り当てる場合にボタンの番号(0～)を設定する。
+   *  割り当てない場合、-1を設定する
+  */
+  int bind;
+
+  /****************************************************************************/
+
+  /*
+   * 連射有効フラグ
+  */
+  int enable;
+
+  /*
+  * 連射用カウンター
+  */
+  int counter;
+} SBTNINFO;
+
 /******************************************************************************/
 void autoSetup(void);
 void autoClear(void);
@@ -25,52 +73,16 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval);
 int g_autoPin = A0;
 int g_clearPin = A1;
 
-/* 入力Pin */
-int g_inputs[BTN] = { A2, A3, A4, A5,  8,  9 }; // 入力Pin
+SBTNINFO g_BtnInfo[BTN] = {
+  /*In Ot Ti  Bi  -  - */
+  { A2, 2, 1, -1, 0, 0, },
+  { A3, 3, 1, -1, 0, 0, },
+  { A4, 4, 1, -1, 0, 0, },
+  { A5, 5, 1, -1, 0, 0, },
+  {  8, 6, 1, -1, 0, 0, },
+  {  9, 7, 1, -1, 0, 0, },
+};
 
-/*
- * 出力Pin
- * 
- * 出力するPinの番号を設定する
- * -1の場合、出力しない
-*/
-int g_outputs[BTN] = { 2, 3, 4, 5, 6, 7 }; // 出力Pin
-
-/*
- * 連射速度
- * 
- * 連射する速度を設定することできる。
- * 1 : 30  = 60 / (1 + 1)
- * 2 : 20  = 60 / (2 + 1)
- * 3 : 15  = 60 / (3 + 1)
- * 4 : 12  = 60 / (4 + 1)
- * 5 : 10  = 60 / (5 + 1)
- * 6 : 8.6 = 60 / (6 + 1)
- * 7 : 7.5 = 60 / (7 + 1)
-*/
-int g_timings[BTN] = { 1, 1, 1, 1, 1, 1 };
-
-/* 
- *  割り当て指定
- *  
- *  連射専用のボタンを割り当てる場合にボタンの番号(0～)を設定する。
- *  割り当てない場合、-1を設定する
- *  
- *  以下の場合、4、5、6ボタンにそれぞれ1，2，3ボタンが連射で使えるようになる。
- *  ※連射速度は、押したボタンの設定を使う。
- *  int g_bind[BTN] = { 3, 4, 5, -1, -1, -1 };
-*/
-int g_bind[BTN] = { -1, -1, -1, -1, -1, -1 };
-
-/*
- * 連射用カウンター
-*/
-int g_counter[BTN];
-
-/*
- * 連射フラグ
-*/
-int g_flags[BTN];
 /******************************************************************************/
 
 void setup() {
@@ -97,29 +109,30 @@ void setup() {
   */
   for( int ii = 0; ii < BTN; ii++ )
   {
-    if( g_bind[ii] != -1 )
+    if( g_BtnInfo[ii].bind != -1 )
     {
-      g_outputs[g_bind[ii]] = -1;
+      int bind = g_BtnInfo[ii].bind;
+      g_BtnInfo[bind].outputPin = -1;
     }
   }
   /* check bind setting end */
   
   for( int ii = 0; ii < BTN; ii++ )
   {
-    int INpin = g_inputs[ii];
-    int OUTpin = g_outputs[ii];
-    int bind = g_bind[ii];
+    int INpin = g_BtnInfo[ii].inputPin;
+    int OUTpin = g_BtnInfo[ii].outputPin;
+    int bind = g_BtnInfo[ii].bind;
     int BINDpin = -1;
 
-    g_counter[ii] = 0;
-    g_flags[ii] = 0;
+    g_BtnInfo[ii].counter = 0;
+    g_BtnInfo[ii].enable = 0;
 
     pinMode(INpin, INPUT);
     digitalWrite(INpin, HIGH);
 
     if( bind != -1 )
     {
-      BINDpin = g_inputs[bind];
+      BINDpin = g_BtnInfo[bind].inputPin;
       pinMode(BINDpin, INPUT);
       digitalWrite(BINDpin, HIGH);
     }
@@ -171,20 +184,20 @@ void autoSetup(void)
 {
   for( int ii = 0; ii < BTN; ii++ )
   {
-    int INpin = g_inputs[ii];
-    int OUTpin = g_outputs[ii];
+    int INpin = g_BtnInfo[ii].inputPin;
+    int OUTpin = g_BtnInfo[ii].outputPin;
     if( OUTpin == -1 )
     {
       continue;
     }
     int stats = digitalRead(INpin);
-    if( stats == LOW && g_flags[ii] == 0 )
+    if( stats == LOW && g_BtnInfo[ii].enable == 0 )
     {
       Serial.print( "button" );
       Serial.print( ii + 1 );
       Serial.println( " is AutoFire." );
       
-      g_flags[ii] = 1;
+      g_BtnInfo[ii].enable = 1;
     }
     
   }
@@ -196,7 +209,7 @@ void autoClear(void)
 {
   for( int ii = 0; ii < BTN; ii++ )
   {
-      g_flags[ii] = 0;
+      g_BtnInfo[ii].enable = 0;
   }
 } /* autoClear */
 
@@ -205,19 +218,19 @@ void oneStep(void)
 {
   for( int ii = 0; ii < BTN; ii++ )
   {
-    int INpin = g_inputs[ii];
-    int OUTpin = g_outputs[ii];
-    int bind = g_bind[ii];
+    int INpin = g_BtnInfo[ii].inputPin;
+    int OUTpin = g_BtnInfo[ii].outputPin;
+    int bind = g_BtnInfo[ii].bind;
     int BINDpin = -1;
     int BINDval = HIGH;
     if( bind != -1 )
     {
-      BINDpin = g_inputs[bind];
+      BINDpin = g_BtnInfo[bind].inputPin;
       BINDval = digitalRead(BINDpin);
     }
     int INval = digitalRead(INpin);
 
-    if( BINDval == LOW || g_flags[ii] != 0 ){
+    if( BINDval == LOW || g_BtnInfo[ii].enable != 0 ){
       /* 連射の場合の動作 */
       oneStepAuto(ii, OUTpin, INval, BINDval);
     }else{
@@ -236,25 +249,26 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval)
   {
     /* ボタンが押されている状態 */
     /* 連射を行う */
-    int timing = g_timings[num];
+    int timing = g_BtnInfo[num].timing;
     if( BINDval == LOW )
     {
       /* バインド側のボタンが押されている場合、
        * バインドの設定を使う
        */
-      timing = g_timings[g_bind[num]];
+      int bind = g_BtnInfo[num].bind;
+      timing = g_BtnInfo[bind].timing;
     }
     
-    g_counter[num]++;
-    if( g_counter[num] >= timing ) {
-      g_counter[num] = 0;
+    g_BtnInfo[num].counter++;
+    if( g_BtnInfo[num].counter >= timing ) {
+      g_BtnInfo[num].counter = 0;
 
       int val = digitalRead(OUTpin);
       digitalWrite(OUTpin, (val==HIGH ? LOW : HIGH));
     }
   }else{
     /* ボタンが押されていない状態 */
-    g_counter[num] = g_timings[num]; /* ボタンを押したタイミングでLOWになるように設定 */
+    g_BtnInfo[num].counter = g_BtnInfo[num].timing; /* ボタンを押したタイミングでLOWになるように設定 */
     digitalWrite(OUTpin, HIGH);
   }
 } /* oneStepAuto */
