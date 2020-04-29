@@ -6,45 +6,46 @@
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  * @version    20200422
  * 
- * Git : https://github.com/xx20170204xx/ArduinoRapidFire_NEOGEO
+ * @link       https://github.com/xx20170204xx/ArduinoRapidFire_NEOGEO
  */
 
-
+/**************************************/
 // ボタン数
 #define BTN 6
 
 /* 各ボタンに対応するPIN */
+/*   Input Button pin */
 #define INPIN_BTN1  10
 #define INPIN_BTN2  16
 #define INPIN_BTN3  14
 #define INPIN_BTN4  15
 #define INPIN_BTN5  A0
 #define INPIN_BTN6  A1
-
+/*   Output Button pin */
 #define OUTPIN_BTN1  2
 #define OUTPIN_BTN2  3
 #define OUTPIN_BTN3  4
 #define OUTPIN_BTN4  5
 #define OUTPIN_BTN5  6
 #define OUTPIN_BTN6  7
-
+/*   Control Pin */
 #define INPIN_AUTO  8
 #define INPIN_CLEAR 9
 
-
 #define DEF_SET_CPS2_DDSOM  0
 #define DEF_SET_CPS2_AVSP   0
+/**************************************/
 
+/* 連射用の定数 */
+#define RPD_SPD_30  1   /*  30連 */
+#define RPD_SPD_20  2   /*  20連 */
+#define RPD_SPD_15  3   /*  15連 */
+#define RPD_SPD_12  4   /*  12連 */
+#define RPD_SPD_10  5   /*  10連 */
+#define RPD_SPD_7_5 7   /* 7.5連 */
 
-#define RPD_SPD_30  1
-#define RPD_SPD_20  2
-#define RPD_SPD_15  3
-#define RPD_SPD_12  4
-#define RPD_SPD_10  5
-#define RPD_SPD_7_5 7
-
-
-#define g_delay1 (1000 / 60)
+/* 非同期連射時のディレイ時間(Micro Second) */
+#define g_delay_us (1000000 / 60)
 
 typedef struct SBTNINFO
 {
@@ -95,6 +96,7 @@ typedef struct SBTNINFO
 } SBTNINFO;
 
 /******************************************************************************/
+int ASyncWait(void);
 int VSyncWait(void);
 void autoSetup(void);
 void autoClear(void);
@@ -290,10 +292,10 @@ void loop() {
     int ret = VSyncWait();
     if( ret != 0 )
     {
-      delay(g_delay1);
+      AsyncWait();
     }
   }else{
-    delay(g_delay1);
+    AsyncWait();
   }
 } /* loop */
 
@@ -323,6 +325,12 @@ void autoSetup(void)
 } /* autoSetup */
 
 /******************************************************************************/
+int ASyncWait(void)
+{
+  delayMicroseconds(g_delay_us);
+  return 0;
+} /* ASyncWait */
+/******************************************************************************/
 int VSyncWait(void)
 {
   //int s = millis();
@@ -337,7 +345,7 @@ int VSyncWait(void)
   stbk = digitalRead(g_syncINPin);
   while( flag > 0 )
   {
-    delay(1);
+    delayMicroseconds(g_delay_us / 10);
     st = digitalRead(g_syncINPin);
     if( st != stbk )
     {
