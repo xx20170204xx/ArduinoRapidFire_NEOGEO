@@ -4,7 +4,7 @@
  * Arduino Leonardo 互換ボード
  * 
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    20200422
+ * @version    20200429
  * 
  * @link       https://github.com/xx20170204xx/ArduinoRapidFire_NEOGEO
  */
