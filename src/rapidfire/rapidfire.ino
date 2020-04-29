@@ -292,10 +292,10 @@ void loop() {
     int ret = VSyncWait();
     if( ret != 0 )
     {
-      AsyncWait();
+      ASyncWait();
     }
   }else{
-    AsyncWait();
+    ASyncWait();
   }
 } /* loop */
 
