@@ -1,7 +1,7 @@
 /* 
  * Arduino Rapid Fire for NEOGEO
  * 
- * Arduino Leonardo
+ * Arduino Leonardo 互換ボード
  * 
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
  * @version    20200422
@@ -9,8 +9,40 @@
  * Git : https://github.com/xx20170204xx/ArduinoRapidFire_NEOGEO
  */
 
+
 // ボタン数
 #define BTN 6
+
+/* 各ボタンに対応するPIN */
+#define INPIN_BTN1  10
+#define INPIN_BTN2  16
+#define INPIN_BTN3  14
+#define INPIN_BTN4  15
+#define INPIN_BTN5  A0
+#define INPIN_BTN6  A1
+
+#define OUTPIN_BTN1  2
+#define OUTPIN_BTN2  3
+#define OUTPIN_BTN3  4
+#define OUTPIN_BTN4  5
+#define OUTPIN_BTN5  6
+#define OUTPIN_BTN6  7
+
+#define INPIN_AUTO  8
+#define INPIN_CLEAR 9
+
+
+#define DEF_SET_CPS2_DDSOM  0
+#define DEF_SET_CPS2_AVSP   0
+
+
+#define RPD_SPD_30  1
+#define RPD_SPD_20  2
+#define RPD_SPD_15  3
+#define RPD_SPD_12  4
+#define RPD_SPD_10  5
+#define RPD_SPD_7_5 7
+
 
 #define g_delay1 (1000 / 60)
 
@@ -71,19 +103,84 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval);
 
 
 /******************************************************************************/
-int g_autoPin = A0;
-int g_clearPin = A1;
+int g_autoPin =  INPIN_AUTO;
+int g_clearPin = INPIN_CLEAR;
 int g_syncINPin = -1;
 
-SBTNINFO g_BtnInfo[BTN] = {
-  /*In Ot Ti  Bi  -  - */
-  { A2, 2, 1, -1, 0, 0, },
-  { A3, 3, 1, -1, 0, 0, },
-  { A4, 4, 1, -1, 0, 0, },
-  { A5, 5, 1, -1, 0, 0, },
-  {  8, 6, 1, -1, 0, 0, },
-  {  9, 7, 1, -1, 0, 0, },
-};
+/******************************************************************************/
+/* 各ボタンの設定 */
+#if DEF_SET_CPS2_DDSOM == 1
+  /*
+   * Dungeon & Dragons Shadow over Mystara
+   * [1] [2] [3]
+   * [4] [5] [6]
+   * 
+   * [1] …… ボタン4(30連)
+   * [2] …… ボタン5(30連)
+   * [3] …… ボタン6(30連)
+   * [4] …… ボタン1(30連)
+   * [5] …… ボタン2(30連)
+   * [6] …… ボタン3(30連)
+  */
+  
+  SBTNINFO g_BtnInfo[BTN] = {
+    /*In           Ot            Ti          Bi  -  - */
+    { INPIN_BTN4, OUTPIN_BTN1, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN2, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN3, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN1, OUTPIN_BTN4, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN5, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN6, RPD_SPD_30, -1, 0, 0, },
+  };
+
+#elif DEF_SET_CPS2_AVSP == 1
+  /*
+   * Alien VS Predator
+   * [1] [2] [3]
+   * [4] [5] [6]
+   * 
+   * [1] …… ボタン1(30連)
+   * [2] …… ボタン2(30連)
+   * [3] …… ボタン3(30連)
+   * [4] …… ボタン1(15連)
+   * [5] …… ボタン2(30連)
+   * [6] …… ボタン3(30連)
+  */
+  
+  SBTNINFO g_BtnInfo[BTN] = {
+    /*In           Ot            Ti          Bi  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30,  3, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30,  4, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30,  5, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, -1, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, -1, 0, 0, },
+  };
+
+#else
+  /*
+   * 通常設定
+   * [1] [2] [3]
+   * [4] [5] [6]
+   * 
+   * [1] …… ボタン1(30連)
+   * [2] …… ボタン2(30連)
+   * [3] …… ボタン3(30連)
+   * [4] …… ボタン4(30連)
+   * [5] …… ボタン5(30連)
+   * [6] …… ボタン6(30連)
+  */
+  SBTNINFO g_BtnInfo[BTN] = {
+    /*In           Ot            Ti          Bi  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, -1, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, -1, 0, 0, },
+  };
+
+#endif
 
 /******************************************************************************/
 
@@ -185,8 +282,9 @@ void loop() {
   }else if( clearStats == LOW ){
     autoClear();
   }else{
-    oneStep();
+    /* nop */
   }
+  oneStep();
 
   if( g_syncINPin != -1 ){
     int ret = VSyncWait();
