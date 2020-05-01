@@ -117,49 +117,53 @@ int g_syncINPin = -1;
 #if DEF_SET_CPS2_DDSOM == 1
   /*
    * Dungeon & Dragons Shadow over Mystara
+   * ** ボタン配置
    * [1] [2] [3]
    * [4] [5] [6]
    * 
-   * [1] …… ボタン4(30連)
-   * [2] …… ボタン5(30連)
-   * [3] …… ボタン6(30連)
-   * [4] …… ボタン1(30連)
-   * [5] …… ボタン2(30連)
-   * [6] …… ボタン3(30連)
+   * ** 各ボタンの設定
+   * [1] …… ボタン4(Auto有効時 30連)
+   * [2] …… ボタン5(Auto有効時 30連)
+   * [3] …… ボタン6(Auto有効時 30連)
+   * [4] …… ボタン1(Auto有効時 30連)
+   * [5] …… ボタン2(Auto有効時 30連)
+   * [6] …… ボタン3(Auto有効時 30連)
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*In           Ot            Ti          Bi  -  - */
-    { INPIN_BTN4, OUTPIN_BTN1, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN2, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN3, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN1, OUTPIN_BTN4, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN5, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN6, RPD_SPD_30, -1, 0, 0, },
+    /*InputPin    OutputPin    Timing      Bind  -  - */
+    { INPIN_BTN4, OUTPIN_BTN1, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN2, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN3, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN1, OUTPIN_BTN4, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN5, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN6, RPD_SPD_30, -1,   0, 0, },
   };
 
 #elif DEF_SET_CPS2_AVSP == 1
   /*
    * Alien VS Predator
+   * ** ボタン配置
    * [1] [2] [3]
    * [4] [5] [6]
    * 
-   * [1] …… ボタン1(30連)
-   * [2] …… ボタン2(30連)
-   * [3] …… ボタン3(30連)
+   * ** 各ボタンの設定
+   * [1] …… ボタン1(Auto有効時 30連)
+   * [2] …… ボタン2(Auto有効時 30連)
+   * [3] …… ボタン3(Auto有効時 30連)
    * [4] …… ボタン1(15連)
    * [5] …… ボタン2(30連)
    * [6] …… ボタン3(30連)
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*In           Ot            Ti          Bi  -  - */
-    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30,  3, 0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30,  4, 0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30,  5, 0, 0, },
-    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, -1, 0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, -1, 0, 0, },
+    /*InputPin    OutputPin    Timing      Bind  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30,  3,   0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30,  4,   0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30,  5,   0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, -1,   0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, -1,   0, 0, },
   };
 
 #else
@@ -168,21 +172,22 @@ int g_syncINPin = -1;
    * [1] [2] [3]
    * [4] [5] [6]
    * 
-   * [1] …… ボタン1(30連)
-   * [2] …… ボタン2(30連)
-   * [3] …… ボタン3(30連)
-   * [4] …… ボタン4(30連)
-   * [5] …… ボタン5(30連)
-   * [6] …… ボタン6(30連)
+   * ** 各ボタンの設定
+   * [1] …… ボタン1(Auto有効時 30連)
+   * [2] …… ボタン2(Auto有効時 30連)
+   * [3] …… ボタン3(Auto有効時 30連)
+   * [4] …… ボタン4(Auto有効時 30連)
+   * [5] …… ボタン5(Auto有効時 30連)
+   * [6] …… ボタン6(Auto有効時 30連)
   */
   SBTNINFO g_BtnInfo[BTN] = {
-    /*In           Ot            Ti          Bi  -  - */
-    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, -1, 0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, -1, 0, 0, },
+    /*InputPin    OutputPin    Timing      Bind  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, -1,   0, 0, },
   };
 
 #endif
