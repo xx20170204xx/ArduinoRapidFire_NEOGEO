@@ -44,8 +44,10 @@
 #define RPD_SPD_10  5   /*  10連 */
 #define RPD_SPD_7_5 7   /* 7.5連 */
 
+#define DIV 10
+
 /* 非同期連射時のディレイ時間(Micro Second) */
-#define g_delay_us (1000000 / 60)
+#define g_delay_us (1000000 / (60 * DIV))
 
 typedef struct SBTNINFO
 {
@@ -237,6 +239,7 @@ void setup() {
 
     g_BtnInfo[ii].counter = 0;
     g_BtnInfo[ii].enable = 0;
+    g_BtnInfo[ii].timing = g_BtnInfo[ii].timing * DIV;
 
     pinMode(INpin, INPUT);
     digitalWrite(INpin, HIGH);
