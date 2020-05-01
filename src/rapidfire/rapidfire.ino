@@ -34,15 +34,18 @@
 
 #define DEF_SET_CPS2_DDSOM  0
 #define DEF_SET_CPS2_AVSP   0
+#define DEF_SET_DEVTEST01   0
+#define DEF_SET_DEVTEST02   0
 /**************************************/
 
 /* 連射用の定数 */
-#define RPD_SPD_30  1   /*  30連 */
-#define RPD_SPD_20  2   /*  20連 */
-#define RPD_SPD_15  3   /*  15連 */
-#define RPD_SPD_12  4   /*  12連 */
-#define RPD_SPD_10  5   /*  10連 */
-#define RPD_SPD_7_5 7   /* 7.5連 */
+#define RPD_SPD_30  (1)   /*  30連 */
+#define RPD_SPD_20  (2)   /*  20連 */
+#define RPD_SPD_15  (3)   /*  15連 */
+#define RPD_SPD_12  (4)   /*  12連 */
+#define RPD_SPD_10  (5)   /*  10連 */
+#define RPD_SPD_7_5 (7)   /* 7.5連 */
+#define RPD_SPD_MIN (59)  /*   1連 */
 
 /* Bind用定数 */
 #define BIND_BTN(n) (1 << n)
@@ -54,10 +57,10 @@
 #define BIND_BTN6   (BIND_BTN(5))
 #define BIND_NONE   (0)
 
-#define DIV 10
+#define RPD_DIV (10)
 
 /* 非同期連射時のディレイ時間(Micro Second) */
-#define g_delay_us (1000000 / (60 * DIV))
+#define g_delay_us (1000000 / (60 * RPD_DIV))
 
 typedef struct SBTNINFO
 {
@@ -90,9 +93,9 @@ typedef struct SBTNINFO
    *  割り当て指定
    *  
    *  連射専用のボタンを割り当てる場合にボタンの番号(0～)を設定する。
-   *  割り当てない場合、-1を設定する
+   *  割り当てない場合、0を設定する
   */
-  int bind;
+  int bindFlags;
 
   /****************************************************************************/
 
@@ -176,6 +179,65 @@ int g_syncINPin = -1;
     { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   0, 0, },
   };
 
+#elif DEF_SET_DEVTEST01 == 1
+  /*
+   * Development Test 01
+   * ** ボタン配置
+   * [1] [2] [3]
+   * [4] [5] [6]
+   * 
+   * ** 各ボタンの設定
+   * [1] …… ボタン1(Auto有効時 30連)
+   * [2] …… ボタン1(20連)
+   * [3] …… ボタン1(15連)
+   * [4] …… ボタン1(12連)
+   * [5] …… ボタン1(10連)
+   * [6] …… ボタン1(7.5連)
+  */
+  
+  SBTNINFO g_BtnInfo[BTN] = {
+    /*InputPin    OutputPin    Timing      Bind  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN2 | 
+                                           BIND_BTN3 | 
+                                           BIND_BTN4 | 
+                                           BIND_BTN5 | 
+                                           BIND_BTN6 ,   0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_20, BIND_NONE,   0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_15, BIND_NONE,   0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_12, BIND_NONE,   0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_10, BIND_NONE,   0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_7_5, BIND_NONE,   0, 0, },
+  };
+
+#elif DEF_SET_DEVTEST02 == 1
+  /*
+   * Development Test 02
+   * ** ボタン配置
+   * [1] [2] [3]
+   * [4] [5] [6]
+   * 
+   * ** 各ボタンの設定
+   * [1] …… ボタン1(Auto有効時 30連)
+   * [2] …… ボタン2(Auto有効時 30連)
+   * [3] …… ボタン2(20連)
+   * [4] …… ボタン2(15連)
+   * [5] …… ボタン2(12連)
+   * [6] …… ボタン2(10連)
+  */
+  
+  SBTNINFO g_BtnInfo[BTN] = {
+    /*InputPin    OutputPin    Timing      Bind  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_BTN3 | 
+                                           BIND_BTN4 | 
+                                           BIND_BTN5 | 
+                                           BIND_BTN6 ,   0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_20, BIND_NONE,   0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_12, BIND_NONE,   0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_10, BIND_NONE,   0, 0, },
+  };
+
 #else
   /*
    * 通常設定
@@ -238,9 +300,9 @@ void setup() {
   */
   for( int ii = 0; ii < BTN; ii++ )
   {
-    if( g_BtnInfo[ii].bind != BIND_NONE )
+    if( g_BtnInfo[ii].bindFlags != BIND_NONE )
     {
-      int bind = g_BtnInfo[ii].bind;
+      int bind = g_BtnInfo[ii].bindFlags;
       for( int jj = 0; jj < BTN; jj++ )
       {
         if( (bind & BIND_BTN(jj)) == BIND_BTN(jj) )
@@ -256,11 +318,11 @@ void setup() {
   {
     int INpin = g_BtnInfo[ii].inputPin;
     int OUTpin = g_BtnInfo[ii].outputPin;
-    int bind = g_BtnInfo[ii].bind;
+    int bind = g_BtnInfo[ii].bindFlags;
 
     g_BtnInfo[ii].counter = 0;
     g_BtnInfo[ii].enable = 0;
-    g_BtnInfo[ii].timing = g_BtnInfo[ii].timing * DIV;
+    g_BtnInfo[ii].timing = g_BtnInfo[ii].timing * RPD_DIV;
 
     pinMode(INpin, INPUT);
     digitalWrite(INpin, HIGH);
@@ -291,13 +353,25 @@ void setup() {
     Serial.print( ii + 1 );
     Serial.print( " input=[" );
     Serial.print( INpin );
-    // if( BINDpin != -1 )
-    // {
-    //   Serial.print( "] bind=[" );
-    //   Serial.print( BINDpin );
-    // }
     Serial.print( "] output=[" );
     Serial.print( OUTpin );
+
+    if( bind != BIND_NONE )
+    {
+      for( int jj = 0; jj < BTN; jj++ )
+      {
+        if( (bind & BIND_BTN(jj) ) == BIND_BTN(jj) )
+        {
+          int BINDpin = g_BtnInfo[jj].inputPin;
+          int BINDtiming = g_BtnInfo[jj].timing;
+          int RpdSpeed = 60 / (BINDtiming + 1);
+          Serial.print( "] bind=[" );
+          Serial.print( BINDpin );
+          Serial.print( "]_speed=[" );
+          Serial.print( RpdSpeed );
+        }
+      }
+    }
     Serial.println( "]" );
 
   }
@@ -403,9 +477,9 @@ void oneStep(void)
   {
     int INpin = g_BtnInfo[ii].inputPin;
     int OUTpin = g_BtnInfo[ii].outputPin;
-    int bind = g_BtnInfo[ii].bind;
+    int bind = g_BtnInfo[ii].bindFlags;
     int BINDpin = -1;
-    int BINDtiming = 0;
+    int BINDtiming = RPD_SPD_MIN * RPD_DIV;
     int BINDval = HIGH;
     if( bind != BIND_NONE )
     {
@@ -413,9 +487,13 @@ void oneStep(void)
       {
         if( (bind & BIND_BTN(jj) ) == BIND_BTN(jj) )
         {
-          BINDpin = g_BtnInfo[jj].inputPin;
-          BINDtiming = g_BtnInfo[jj].timing;
-          BINDval = digitalRead(BINDpin);
+          int val = digitalRead(g_BtnInfo[jj].inputPin);
+          if( val == LOW && g_BtnInfo[jj].timing < BINDtiming )
+          {
+            BINDval = LOW;
+            BINDpin = g_BtnInfo[jj].inputPin;
+            BINDtiming = g_BtnInfo[jj].timing;
+          }
         }
       }
     }
