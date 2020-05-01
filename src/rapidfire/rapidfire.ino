@@ -109,6 +109,7 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval);
 /******************************************************************************/
 int g_autoPin =  INPIN_AUTO;
 int g_clearPin = INPIN_CLEAR;
+/* Warning : Sync Pin Is No Checked  */
 int g_syncINPin = -1;
 
 /******************************************************************************/
