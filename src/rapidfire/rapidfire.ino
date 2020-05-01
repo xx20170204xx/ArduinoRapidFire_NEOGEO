@@ -44,6 +44,16 @@
 #define RPD_SPD_10  5   /*  10連 */
 #define RPD_SPD_7_5 7   /* 7.5連 */
 
+/* Bind用定数 */
+#define BIND_BTN(n) (1 << n)
+#define BIND_BTN1   (BIND_BTN(0))
+#define BIND_BTN2   (BIND_BTN(1))
+#define BIND_BTN3   (BIND_BTN(2))
+#define BIND_BTN4   (BIND_BTN(3))
+#define BIND_BTN5   (BIND_BTN(4))
+#define BIND_BTN6   (BIND_BTN(5))
+#define BIND_NONE   (0)
+
 #define DIV 10
 
 /* 非同期連射時のディレイ時間(Micro Second) */
@@ -103,7 +113,7 @@ int VSyncWait(void);
 void autoSetup(void);
 void autoClear(void);
 void oneStep(void);
-void oneStepAuto(int num, int OUTpin, int INval, int BINDval);
+void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming);
 
 
 /******************************************************************************/
@@ -132,12 +142,12 @@ int g_syncINPin = -1;
   
   SBTNINFO g_BtnInfo[BTN] = {
     /*InputPin    OutputPin    Timing      Bind  -  - */
-    { INPIN_BTN4, OUTPIN_BTN1, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN2, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN3, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN1, OUTPIN_BTN4, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN5, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN6, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN1, OUTPIN_BTN4, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   0, 0, },
   };
 
 #elif DEF_SET_CPS2_AVSP == 1
@@ -158,12 +168,12 @@ int g_syncINPin = -1;
   
   SBTNINFO g_BtnInfo[BTN] = {
     /*InputPin    OutputPin    Timing      Bind  -  - */
-    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30,  3,   0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30,  4,   0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30,  5,   0, 0, },
-    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, -1,   0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN4,   0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_BTN5,   0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_BTN6,   0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   0, 0, },
   };
 
 #else
@@ -182,12 +192,12 @@ int g_syncINPin = -1;
   */
   SBTNINFO g_BtnInfo[BTN] = {
     /*InputPin    OutputPin    Timing      Bind  -  - */
-    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, -1,   0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, -1,   0, 0, },
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   0, 0, },
   };
 
 #endif
@@ -228,10 +238,16 @@ void setup() {
   */
   for( int ii = 0; ii < BTN; ii++ )
   {
-    if( g_BtnInfo[ii].bind != -1 )
+    if( g_BtnInfo[ii].bind != BIND_NONE )
     {
       int bind = g_BtnInfo[ii].bind;
-      g_BtnInfo[bind].outputPin = -1;
+      for( int jj = 0; jj < BTN; jj++ )
+      {
+        if( (bind & BIND_BTN(jj)) == BIND_BTN(jj) )
+        {
+          g_BtnInfo[jj].outputPin = -1;
+        }
+      }
     }
   }
   /* check bind setting end */
@@ -241,7 +257,6 @@ void setup() {
     int INpin = g_BtnInfo[ii].inputPin;
     int OUTpin = g_BtnInfo[ii].outputPin;
     int bind = g_BtnInfo[ii].bind;
-    int BINDpin = -1;
 
     g_BtnInfo[ii].counter = 0;
     g_BtnInfo[ii].enable = 0;
@@ -250,11 +265,17 @@ void setup() {
     pinMode(INpin, INPUT);
     digitalWrite(INpin, HIGH);
 
-    if( bind != -1 )
+    if( bind != BIND_NONE )
     {
-      BINDpin = g_BtnInfo[bind].inputPin;
-      pinMode(BINDpin, INPUT);
-      digitalWrite(BINDpin, HIGH);
+      for( int jj = 0; jj < BTN; jj++ )
+      {
+        if( (bind & BIND_BTN(jj) ) == BIND_BTN(jj) )
+        {
+          int BINDpin = g_BtnInfo[jj].inputPin;
+          pinMode(BINDpin, INPUT);
+          digitalWrite(BINDpin, HIGH);
+        }
+      }
     }
  
     if( OUTpin == -1 )
@@ -270,11 +291,11 @@ void setup() {
     Serial.print( ii + 1 );
     Serial.print( " input=[" );
     Serial.print( INpin );
-    if( BINDpin != -1 )
-    {
-      Serial.print( "] bind=[" );
-      Serial.print( BINDpin );
-    }
+    // if( BINDpin != -1 )
+    // {
+    //   Serial.print( "] bind=[" );
+    //   Serial.print( BINDpin );
+    // }
     Serial.print( "] output=[" );
     Serial.print( OUTpin );
     Serial.println( "]" );
@@ -384,17 +405,25 @@ void oneStep(void)
     int OUTpin = g_BtnInfo[ii].outputPin;
     int bind = g_BtnInfo[ii].bind;
     int BINDpin = -1;
+    int BINDtiming = 0;
     int BINDval = HIGH;
-    if( bind != -1 )
+    if( bind != BIND_NONE )
     {
-      BINDpin = g_BtnInfo[bind].inputPin;
-      BINDval = digitalRead(BINDpin);
+      for( int jj = 0; jj < BTN; jj++ )
+      {
+        if( (bind & BIND_BTN(jj) ) == BIND_BTN(jj) )
+        {
+          BINDpin = g_BtnInfo[jj].inputPin;
+          BINDtiming = g_BtnInfo[jj].timing;
+          BINDval = digitalRead(BINDpin);
+        }
+      }
     }
     int INval = digitalRead(INpin);
 
     if( BINDval == LOW || g_BtnInfo[ii].enable != 0 ){
       /* 連射の場合の動作 */
-      oneStepAuto(ii, OUTpin, INval, BINDval);
+      oneStepAuto(ii, OUTpin, INval, BINDval, BINDtiming);
     }else{
       /* 現在の状態を設定する */
       digitalWrite(OUTpin, INval);
@@ -405,7 +434,7 @@ void oneStep(void)
 
 
 /******************************************************************************/
-void oneStepAuto(int num, int OUTpin, int INval, int BINDval)
+void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming)
 {
   if( INval == LOW || BINDval == LOW )
   {
@@ -417,8 +446,7 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval)
       /* バインド側のボタンが押されている場合、
        * バインドの設定を使う
        */
-      int bind = g_BtnInfo[num].bind;
-      timing = g_BtnInfo[bind].timing;
+      timing = BINDtiming;
     }
     
     g_BtnInfo[num].counter++;
