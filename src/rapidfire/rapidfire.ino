@@ -347,8 +347,19 @@ void setup() {
 
     pinMode(OUTpin, OUTPUT);
     digitalWrite(OUTpin, HIGH);
+  }
 
-    // Serial.print( "button%d input=[%d] output=[%d]\n", ii + 1, INpin, OUTpin );
+  for( int ii = 0; ii < BTN; ii++ )
+  {
+    int INpin = g_BtnInfo[ii].inputPin;
+    int OUTpin = g_BtnInfo[ii].outputPin;
+    int bind = g_BtnInfo[ii].bindFlags;
+
+    if( OUTpin == -1 )
+    {
+      continue;
+    }
+
     Serial.print( "button" );
     Serial.print( ii + 1 );
     Serial.print( " input=[" );
@@ -362,11 +373,10 @@ void setup() {
       {
         if( (bind & BIND_BTN(jj) ) == BIND_BTN(jj) )
         {
-          int BINDpin = g_BtnInfo[jj].inputPin;
-          int BINDtiming = g_BtnInfo[jj].timing;
+          int BINDtiming = g_BtnInfo[jj].timing / RPD_DIV;
           int RpdSpeed = 60 / (BINDtiming + 1);
           Serial.print( "] bind=[" );
-          Serial.print( BINDpin );
+          Serial.print( jj + 1 );
           Serial.print( "]_speed=[" );
           Serial.print( RpdSpeed );
         }
