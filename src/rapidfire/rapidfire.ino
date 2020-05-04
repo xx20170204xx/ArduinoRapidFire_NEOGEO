@@ -112,7 +112,7 @@ typedef struct SBTNINFO
   /* 
    *  連射用タイミング
   */
-  int papidTiming;
+  int rapidTiming;
 } SBTNINFO;
 
 /******************************************************************************/
@@ -350,9 +350,14 @@ void SetupButton(void)
     int OUTpin = g_BtnInfo[ii].outputPin;
     int bind = g_BtnInfo[ii].bindFlags;
 
+    if( g_BtnInfo[ii].timing > RPD_SPD_MIN )
+    {
+      g_BtnInfo[ii].timing = RPD_SPD_MIN;
+    }
+
     g_BtnInfo[ii].counter = 0;
     g_BtnInfo[ii].enable = 0;
-    g_BtnInfo[ii].papidTiming = g_BtnInfo[ii].timing * RPD_DIV;
+    g_BtnInfo[ii].rapidTiming = g_BtnInfo[ii].timing * RPD_DIV;
 
     pinMode(INpin, INPUT);
     digitalWrite(INpin, HIGH);
@@ -525,11 +530,11 @@ void oneStep(void)
         if( (bind & BIND_BTN(jj) ) == BIND_BTN(jj) )
         {
           int val = digitalRead(g_BtnInfo[jj].inputPin);
-          if( val == LOW && g_BtnInfo[jj].papidTiming < BINDtiming )
+          if( val == LOW && g_BtnInfo[jj].rapidTiming < BINDtiming )
           {
             BINDval = LOW;
             BINDpin = g_BtnInfo[jj].inputPin;
-            BINDtiming = g_BtnInfo[jj].papidTiming;
+            BINDtiming = g_BtnInfo[jj].rapidTiming;
           }
         }
       }
@@ -555,7 +560,7 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming)
   {
     /* ボタンが押されている状態 */
     /* 連射を行う */
-    int papidTiming = g_BtnInfo[num].papidTiming;
+    int papidTiming = g_BtnInfo[num].rapidTiming;
     if( BINDval == LOW )
     {
       /* バインド側のボタンが押されている場合、
@@ -573,7 +578,7 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming)
     }
   }else{
     /* ボタンが押されていない状態 */
-    g_BtnInfo[num].counter = g_BtnInfo[num].papidTiming; /* ボタンを押したタイミングでLOWになるように設定 */
+    g_BtnInfo[num].counter = g_BtnInfo[num].rapidTiming; /* ボタンを押したタイミングでLOWになるように設定 */
     digitalWrite(OUTpin, HIGH);
   }
 } /* oneStepAuto */
