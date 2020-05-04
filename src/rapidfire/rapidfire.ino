@@ -92,8 +92,8 @@ typedef struct SBTNINFO
   /* 
    *  割り当て指定
    *  
-   *  連射専用のボタンを割り当てる場合にボタンの番号(0～)を設定する。
-   *  割り当てない場合、0を設定する
+   *  連射専用のボタンを割り当てる場合にフラグを設定する。
+   *  割り当てない場合、BIND_NONE を設定する
   */
   int bindFlags;
 
@@ -108,9 +108,16 @@ typedef struct SBTNINFO
   * 連射用カウンター
   */
   int counter;
+
+  /* 
+   *  連射用タイミング
+  */
+  int papidTiming;
 } SBTNINFO;
 
 /******************************************************************************/
+void SetupButton(void);
+void ShowInfo(void);
 int ASyncWait(void);
 int VSyncWait(void);
 void autoSetup(void);
@@ -268,29 +275,52 @@ int g_syncINPin = -1;
 
 void setup() {
   delay(3000);
+  SetupButton();
+  ShowInfo();
+} /* setup */
 
+/******************************************************************************/
+void loop() {
+  int autoStats = digitalRead(g_autoPin);
+  int clearStats = digitalRead(g_clearPin);
+
+  if( autoStats == LOW )
+  {
+    autoSetup();
+  }else if( clearStats == LOW ){
+    autoClear();
+  }else{
+    /* nop */
+  }
+  oneStep();
+
+  if( g_syncINPin != -1 ){
+    int ret = VSyncWait();
+    if( ret != 0 )
+    {
+      ASyncWait();
+    }
+  }else{
+    ASyncWait();
+  }
+} /* loop */
+
+/******************************************************************************/
+void SetupButton(void)
+{
   // 連射設定ボタンの設定
   pinMode(g_autoPin, INPUT);
   digitalWrite(g_autoPin, HIGH);
-  Serial.print( "Auto pin=[" );
-  Serial.print( g_autoPin );
-  Serial.println( "]" );
 
   // 連射解除ボタンの設定
   pinMode(g_clearPin, INPUT);
   digitalWrite(g_clearPin, HIGH);
-  Serial.print( "Clear pin=[" );
-  Serial.print( g_clearPin );
-  Serial.println( "]" );
 
   // クロック入力
   if( g_syncINPin == -1 )
   {
     pinMode(g_syncINPin, INPUT);
     digitalWrite(g_syncINPin, LOW);
-    Serial.print( "Sync Input pin=[" );
-    Serial.print( g_syncINPin );
-    Serial.println( "]" );
   }
 
   /* check bind setting start */
@@ -322,7 +352,7 @@ void setup() {
 
     g_BtnInfo[ii].counter = 0;
     g_BtnInfo[ii].enable = 0;
-    g_BtnInfo[ii].timing = g_BtnInfo[ii].timing * RPD_DIV;
+    g_BtnInfo[ii].papidTiming = g_BtnInfo[ii].timing * RPD_DIV;
 
     pinMode(INpin, INPUT);
     digitalWrite(INpin, HIGH);
@@ -348,12 +378,33 @@ void setup() {
     pinMode(OUTpin, OUTPUT);
     digitalWrite(OUTpin, HIGH);
   }
+} /* SetupButton */
+/******************************************************************************/
+void ShowInfo( void )
+{
+  Serial.print( "Auto pin=[" );
+  Serial.print( g_autoPin );
+  Serial.println( "]" );
 
+  Serial.print( "Clear pin=[" );
+  Serial.print( g_clearPin );
+  Serial.println( "]" );
+
+  // クロック入力
+  if( g_syncINPin == -1 )
+  {
+    Serial.print( "Sync Input pin=[" );
+    Serial.print( g_syncINPin );
+    Serial.println( "]" );
+  }
+  
   for( int ii = 0; ii < BTN; ii++ )
   {
     int INpin = g_BtnInfo[ii].inputPin;
     int OUTpin = g_BtnInfo[ii].outputPin;
     int bind = g_BtnInfo[ii].bindFlags;
+    int timing = g_BtnInfo[ii].timing;
+    int RpdSpeed = 60 / (timing + 1);
 
     if( OUTpin == -1 )
     {
@@ -366,6 +417,8 @@ void setup() {
     Serial.print( INpin );
     Serial.print( "] output=[" );
     Serial.print( OUTpin );
+    Serial.print( "]_speed=[" );
+    Serial.print( RpdSpeed );
 
     if( bind != BIND_NONE )
     {
@@ -373,7 +426,7 @@ void setup() {
       {
         if( (bind & BIND_BTN(jj) ) == BIND_BTN(jj) )
         {
-          int BINDtiming = g_BtnInfo[jj].timing / RPD_DIV;
+          int BINDtiming = g_BtnInfo[jj].timing;
           int RpdSpeed = 60 / (BINDtiming + 1);
           Serial.print( "] bind=[" );
           Serial.print( jj + 1 );
@@ -385,34 +438,8 @@ void setup() {
     Serial.println( "]" );
 
   }
-} /* setup */
-
-/******************************************************************************/
-void loop() {
-  int autoStats = digitalRead(g_autoPin);
-  int clearStats = digitalRead(g_clearPin);
-
-  if( autoStats == LOW )
-  {
-    autoSetup();
-  }else if( clearStats == LOW ){
-    autoClear();
-  }else{
-    /* nop */
-  }
-  oneStep();
-
-  if( g_syncINPin != -1 ){
-    int ret = VSyncWait();
-    if( ret != 0 )
-    {
-      ASyncWait();
-    }
-  }else{
-    ASyncWait();
-  }
-} /* loop */
-
+  
+} /* ShowInfo */
 /******************************************************************************/
 void autoSetup(void)
 {
@@ -498,11 +525,11 @@ void oneStep(void)
         if( (bind & BIND_BTN(jj) ) == BIND_BTN(jj) )
         {
           int val = digitalRead(g_BtnInfo[jj].inputPin);
-          if( val == LOW && g_BtnInfo[jj].timing < BINDtiming )
+          if( val == LOW && g_BtnInfo[jj].papidTiming < BINDtiming )
           {
             BINDval = LOW;
             BINDpin = g_BtnInfo[jj].inputPin;
-            BINDtiming = g_BtnInfo[jj].timing;
+            BINDtiming = g_BtnInfo[jj].papidTiming;
           }
         }
       }
@@ -528,17 +555,17 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming)
   {
     /* ボタンが押されている状態 */
     /* 連射を行う */
-    int timing = g_BtnInfo[num].timing;
+    int papidTiming = g_BtnInfo[num].papidTiming;
     if( BINDval == LOW )
     {
       /* バインド側のボタンが押されている場合、
        * バインドの設定を使う
        */
-      timing = BINDtiming;
+      papidTiming = BINDtiming;
     }
     
     g_BtnInfo[num].counter++;
-    if( g_BtnInfo[num].counter >= timing ) {
+    if( g_BtnInfo[num].counter >= papidTiming ) {
       g_BtnInfo[num].counter = 0;
 
       int val = digitalRead(OUTpin);
@@ -546,7 +573,7 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming)
     }
   }else{
     /* ボタンが押されていない状態 */
-    g_BtnInfo[num].counter = g_BtnInfo[num].timing; /* ボタンを押したタイミングでLOWになるように設定 */
+    g_BtnInfo[num].counter = g_BtnInfo[num].papidTiming; /* ボタンを押したタイミングでLOWになるように設定 */
     digitalWrite(OUTpin, HIGH);
   }
 } /* oneStepAuto */
