@@ -13,6 +13,23 @@
 // ボタン数
 #define BTN 6
 
+/***************************************
+ * Pro Micro(5V 16MHz)
+ *     +----[USB]----+ 
+ * TXO |             | RAW  
+ * RXI |             | GND  
+ * GND |             | Reset
+ * GND |             | VCC  
+ *   2 |             | A3   
+ *   3 |             | A2   
+ *   4 |             | A1   
+ *   5 |             | A0   
+ *   6 |             | 15   
+ *   7 |             | 14   
+ *   8 |             | 16   
+ *   9 |             | 10   
+ *     +-------------+
+
 /* 各ボタンに対応するPIN */
 /*   Input Button pin */
 #define INPIN_BTN1  10
@@ -430,7 +447,8 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval)
     }
   }else{
     /* ボタンが押されていない状態 */
-    g_BtnInfo[num].counter = g_BtnInfo[num].timing; /* ボタンを押したタイミングでLOWになるように設定 */
+    /* ボタンを押したタイミングでLOWになるように設定 */
+    g_BtnInfo[num].counter = g_BtnInfo[num].timing;
     digitalWrite(OUTpin, HIGH);
   }
 } /* oneStepAuto */
