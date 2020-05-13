@@ -4,7 +4,7 @@
  * Arduino Leonardo 互換ボード
  * 
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    20200429
+ * @version    20200513
  * 
  * @link       https://github.com/xx20170204xx/ArduinoRapidFire_NEOGEO
  */
@@ -51,7 +51,7 @@
 
 #define DEF_SET_CPS2_DDSOM  0
 #define DEF_SET_CPS2_AVSP   0
-#define DEF_SET_S32_DBZVRVS 1
+#define DEF_SET_S32_DBZVRVS 0
 #define DEF_SET_DEVTEST01   0
 #define DEF_SET_DEVTEST02   0
 /**************************************/
@@ -155,6 +155,7 @@ void oneStep(void);
 void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming);
 
 void oneStep_DBZ_VRVS_Macro1(void);
+void oneStep_DBZ_VRVS_Macro2(void);
 /******************************************************************************/
 int g_autoPin =  INPIN_AUTO;
 int g_clearPin = INPIN_CLEAR;
@@ -227,7 +228,7 @@ int g_syncINPin = -1;
    * [2] …… ボタン2(Auto有効時 30連)
    * [3] …… ボタン3(Auto有効時 30連)
    * [4] …… マクロ(ボタン1/ボタン2の交互30連)
-   * [5] …… ボタン5
+   * [5] …… マクロ(ボタン1/ボタン2の交互連)
    * [6] …… ボタン6
   */
   
@@ -236,8 +237,8 @@ int g_syncINPin = -1;
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
-    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   oneStep_DBZ_VRVS_Macro1, 0, },
-    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   oneStep_DBZ_VRVS_Macro1, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   oneStep_DBZ_VRVS_Macro2, 0, 0, },
     { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
   };
 
@@ -655,14 +656,23 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming)
 } /* oneStepAuto */
 
 /******************************************************************************/
+/*
+ * oneStep_DBZ_VRVS_Macro1
+ * 
+ * DBZ_VRVS用マクロ
+ * ボタン1/ボタン2の交互連(秒間30連)
+ * 
+ * ボタン1:LHLHLHLH....
+ * ボタン2:HLHLHLHL....
+*/
 void oneStep_DBZ_VRVS_Macro1(void)
 {
   static int l_flag = 0;
   static int l_counter = 0;
-  int papidTiming = RPD_SPD_30;
+  int l_papidTiming = RPD_SPD_30 * RPD_DIV;
 
   l_counter++;
-  if( l_counter >= papidTiming ) {
+  if( l_counter >= l_papidTiming ) {
     l_counter = 0;
 
     l_flag = (l_flag==0 ? 1 : 0);
@@ -672,4 +682,32 @@ void oneStep_DBZ_VRVS_Macro1(void)
   g_BtnInfo[1].outStatus = (l_flag==1 ? LOW : HIGH);
 
 } /* oneStep_DBZ_VRVS_Macro1 */
+/******************************************************************************/
+/*
+ * oneStep_DBZ_VRVS_Macro2
+ * 
+ * DBZ_VRVS用マクロ
+ * ボタン1/ボタン2の交互連
+ * 
+ * ボタン1:LHHHLHHH....
+ * ボタン2:HHLHHHLH....
+*/
+void oneStep_DBZ_VRVS_Macro2(void)
+{
+  static int l_flag = 0;
+  static int l_counter = 0;
+  int l_papidTiming = RPD_SPD_30 * RPD_DIV;
+
+  l_counter++;
+  if( l_counter >= l_papidTiming ) {
+    l_counter = 0;
+
+    l_flag++;
+    if(l_flag >= 4 ) l_flag = 0;
+  }
+
+  g_BtnInfo[0].outStatus = (l_flag==0 ? LOW : HIGH);
+  g_BtnInfo[1].outStatus = (l_flag==2 ? LOW : HIGH);
+
+} /* oneStep_DBZ_VRVS_Macro2 */
 /******************************************************************************/
