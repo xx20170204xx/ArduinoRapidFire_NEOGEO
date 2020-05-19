@@ -52,6 +52,7 @@
 #define DEF_SET_CPS2_DDSOM  0
 #define DEF_SET_CPS2_AVSP   0
 #define DEF_SET_S32_DBZVRVS 0
+#define DEF_SET_S32_GA2     0
 #define DEF_SET_DEVTEST01   0
 #define DEF_SET_DEVTEST02   0
 /**************************************/
@@ -141,6 +142,12 @@ typedef struct SBTNINFO
   */
   int rapidTiming;
 
+  /*
+   * ボタンの出力内容
+   * 
+   * HIGH:未押下
+   * LOW :押下
+  */
   int outStatus;
 } SBTNINFO;
 
@@ -156,6 +163,10 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming);
 
 void oneStep_DBZ_VRVS_Macro1(void);
 void oneStep_DBZ_VRVS_Macro2(void);
+
+void oneStep_AnB_Macro(void);
+void oneStep_BnC_Macro(void);
+void oneStep_AnBnC_Macro(void);
 /******************************************************************************/
 int g_autoPin =  INPIN_AUTO;
 int g_clearPin = INPIN_CLEAR;
@@ -181,7 +192,7 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind  -  - */
+    /*InputPin    OutputPin    Timing      Bind　　　　　MacroFunc  -  - */
     { INPIN_BTN4, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN5, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN6, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
@@ -233,12 +244,38 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind  -  - */
+    /*InputPin    OutputPin    Timing      Bind　　　　　MacroFunc  -  - */
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   oneStep_DBZ_VRVS_Macro1, 0, 0, },
     { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   oneStep_DBZ_VRVS_Macro2, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+  };
+
+#elif DEF_SET_S32_GA2 == 1
+  /*
+   * ゴールデンアックス デスアダーの復讐
+   * ** ボタン配置
+   * [1] [2] [3]
+   * [4] [5] [6]
+   * 
+   * ** 各ボタンの設定
+   * [1] …… ボタン1(Auto有効時 30連)
+   * [2] …… ボタン2(Auto有効時 30連)
+   * [3] …… ボタン3(Auto有効時 30連)
+   * [4] …… マクロ(ボタン1/ボタン2の同時押し)
+   * [5] …… ボタン1
+   * [6] …… ボタン1
+  */
+  
+  SBTNINFO g_BtnInfo[BTN] = {
+    /*InputPin    OutputPin    Timing      Bind　　　　　MacroFunc  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN5 | BIND_BTN6,   NULL, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   oneStep_AnB_Macro, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
   };
 
@@ -259,7 +296,7 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind  -  - */
+    /*InputPin    OutputPin    Timing      Bind　　　　　MacroFunc  -  - */
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN2 | 
                                            BIND_BTN3 | 
                                            BIND_BTN4 | 
@@ -289,7 +326,7 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind  -  - */
+    /*InputPin    OutputPin    Timing      Bind         MacroFunc  -  - */
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_BTN3 | 
                                            BIND_BTN4 | 
@@ -316,7 +353,7 @@ int g_syncINPin = -1;
    * [6] …… ボタン6(Auto有効時 30連)
   */
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind  -  - */
+    /*InputPin    OutputPin    Timing      Bind         MacroFunc  -  - */
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
@@ -710,4 +747,41 @@ void oneStep_DBZ_VRVS_Macro2(void)
   g_BtnInfo[1].outStatus = (l_flag==2 ? LOW : HIGH);
 
 } /* oneStep_DBZ_VRVS_Macro2 */
+/******************************************************************************/
+/*
+ * oneStep_AnB_Macro
+ * 
+ * ボタン1/ボタン2の同時押しボタン
+ * 
+*/
+void oneStep_AnB_Macro(void)
+{
+  g_BtnInfo[0].outStatus = LOW;
+  g_BtnInfo[1].outStatus = LOW;
+} /* oneStep_AnB_Macro */
+/******************************************************************************/
+/*
+ * oneStep_BnC_Macro
+ * 
+ * ボタン2/ボタン3の同時押しボタン
+ * 
+*/
+void oneStep_BnC_Macro(void)
+{
+  g_BtnInfo[1].outStatus = LOW;
+  g_BtnInfo[2].outStatus = LOW;
+} /* oneStep_BnC_Macro */
+/******************************************************************************/
+/*
+ * oneStep_AnBnC_Macro
+ * 
+ * ボタン1/ボタン2/ボタン3の同時押しボタン
+ * 
+*/
+void oneStep_AnBnC_Macro(void)
+{
+  g_BtnInfo[0].outStatus = LOW;
+  g_BtnInfo[1].outStatus = LOW;
+  g_BtnInfo[2].outStatus = LOW;
+} /* oneStep_AnBnC_Macro */
 /******************************************************************************/
