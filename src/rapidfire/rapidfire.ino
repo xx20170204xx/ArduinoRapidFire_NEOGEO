@@ -193,7 +193,7 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind　　　　　MacroFunc  -  - */
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
     { INPIN_BTN4, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN5, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN6, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
@@ -245,7 +245,7 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind　　　　　MacroFunc  -  - */
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN6,   NULL, 0, 0, },
     { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
@@ -271,7 +271,7 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind　　　　　MacroFunc  -  - */
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
@@ -297,7 +297,7 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind　　　　　MacroFunc  -  - */
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN5 | BIND_BTN6,   NULL, 0, 0, },
     { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
@@ -323,7 +323,7 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind　　　　　MacroFunc  -  - */
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN2 | 
                                            BIND_BTN3 | 
                                            BIND_BTN4 | 
