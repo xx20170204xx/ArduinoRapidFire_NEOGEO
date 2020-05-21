@@ -4,7 +4,7 @@
  * Arduino Leonardo 互換ボード
  * 
  * @license    http://www.opensource.org/licenses/mit-license.html  MIT License
- * @version    20200429
+ * @version    20200519
  * 
  * @link       https://github.com/xx20170204xx/ArduinoRapidFire_NEOGEO
  */
@@ -51,6 +51,9 @@
 
 #define DEF_SET_CPS2_DDSOM  0
 #define DEF_SET_CPS2_AVSP   0
+#define DEF_SET_CPS2_PGEAR  0
+#define DEF_SET_S32_DBZVRVS 0
+#define DEF_SET_S32_GA2     0
 #define DEF_SET_DEVTEST01   0
 #define DEF_SET_DEVTEST02   0
 /**************************************/
@@ -78,6 +81,8 @@
 
 /* 非同期連射時のディレイ時間(Micro Second) */
 #define g_delay_us (1000000 / (60 * RPD_DIV))
+
+typedef void (*MACRO_FUNC)(void);
 
 typedef struct SBTNINFO
 {
@@ -114,6 +119,13 @@ typedef struct SBTNINFO
   */
   int bindFlags;
 
+  /*
+   * マクロ用関数
+   * 
+   * 使用しない場合、NULLを指定
+  */
+  MACRO_FUNC macroFunc;
+
   /****************************************************************************/
 
   /*
@@ -130,6 +142,14 @@ typedef struct SBTNINFO
    *  連射用タイミング
   */
   int rapidTiming;
+
+  /*
+   * ボタンの出力内容
+   * 
+   * HIGH:未押下
+   * LOW :押下
+  */
+  int outStatus;
 } SBTNINFO;
 
 /******************************************************************************/
@@ -142,7 +162,20 @@ void autoClear(void);
 void oneStep(void);
 void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming);
 
+void oneStep_DBZ_VRVS_Macro1(void);
+void oneStep_DBZ_VRVS_Macro2(void);
 
+void oneStep_AnB_Macro(void);
+void oneStep_BnC_Macro(void);
+void oneStep_CnD_Macro(void);
+void oneStep_DnE_Macro(void);
+void oneStep_EnF_Macro(void);
+void oneStep_AnD_Macro(void);
+void oneStep_BnE_Macro(void);
+void oneStep_CnF_Macro(void);
+void oneStep_AnC_Macro(void);
+void oneStep_AnBnC_Macro(void);
+void oneStep_DnEnF_Macro(void);
 /******************************************************************************/
 int g_autoPin =  INPIN_AUTO;
 int g_clearPin = INPIN_CLEAR;
@@ -168,13 +201,13 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind  -  - */
-    { INPIN_BTN4, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN1, OUTPIN_BTN4, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   0, 0, },
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
+    { INPIN_BTN4, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN1, OUTPIN_BTN4, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
   };
 
 #elif DEF_SET_CPS2_AVSP == 1
@@ -195,12 +228,90 @@ int g_syncINPin = -1;
   
   SBTNINFO g_BtnInfo[BTN] = {
     /*InputPin    OutputPin    Timing      Bind  -  - */
-    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN4,   0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_BTN5,   0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_BTN6,   0, 0, },
-    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   0, 0, },
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN4,   NULL, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_BTN5,   NULL, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_BTN6,   NULL, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+  };
+
+#elif DEF_SET_CPS2_PGEAR == 1
+  /*
+   * パワードギア
+   * ** ボタン配置
+   * [1] [2] [3]
+   * [4] [5] [6]
+   * 
+   * ** 各ボタンの設定
+   * [1] …… ボタン1(Auto有効時 30連)
+   * [2] …… ボタン2(Auto有効時 30連)
+   * [3] …… ボタン3(Auto有効時 30連)
+   * [4] …… マクロ(ボタン1/ボタン2の同時押し)
+   * [5] …… マクロ(ボタン2/ボタン3の同時押し)
+   * [6] …… ボタン1
+  */
+  
+  SBTNINFO g_BtnInfo[BTN] = {
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN6,   NULL, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   oneStep_AnB_Macro, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   oneStep_BnC_Macro, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+  };
+
+#elif DEF_SET_S32_DBZVRVS == 1
+  /*
+   * Dragon Ball Z V.R.V.S
+   * ** ボタン配置
+   * [1] [2] [3]
+   * [4] [5] [6]
+   * 
+   * ** 各ボタンの設定
+   * [1] …… ボタン1(Auto有効時 30連)
+   * [2] …… ボタン2(Auto有効時 30連)
+   * [3] …… ボタン3(Auto有効時 30連)
+   * [4] …… マクロ(ボタン1/ボタン2の交互30連)
+   * [5] …… マクロ(ボタン1/ボタン2の交互連)
+   * [6] …… ボタン6
+  */
+  
+  SBTNINFO g_BtnInfo[BTN] = {
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   oneStep_DBZ_VRVS_Macro1, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   oneStep_DBZ_VRVS_Macro2, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+  };
+
+#elif DEF_SET_S32_GA2 == 1
+  /*
+   * ゴールデンアックス デスアダーの復讐
+   * ** ボタン配置
+   * [1] [2] [3]
+   * [4] [5] [6]
+   * 
+   * ** 各ボタンの設定
+   * [1] …… ボタン1(Auto有効時 30連)
+   * [2] …… ボタン2(Auto有効時 30連)
+   * [3] …… ボタン3(Auto有効時 30連)
+   * [4] …… マクロ(ボタン1/ボタン2の同時押し)
+   * [5] …… ボタン1
+   * [6] …… ボタン1
+  */
+  
+  SBTNINFO g_BtnInfo[BTN] = {
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN5 | BIND_BTN6,   NULL, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   oneStep_AnB_Macro, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
   };
 
 #elif DEF_SET_DEVTEST01 == 1
@@ -220,17 +331,17 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind  -  - */
+    /*InputPin    OutputPin    Timing      Bind          MacroFunc  -  - */
     { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_BTN2 | 
                                            BIND_BTN3 | 
                                            BIND_BTN4 | 
                                            BIND_BTN5 | 
-                                           BIND_BTN6 ,   0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_20, BIND_NONE,   0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_15, BIND_NONE,   0, 0, },
-    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_12, BIND_NONE,   0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_10, BIND_NONE,   0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_7_5, BIND_NONE,   0, 0, },
+                                           BIND_BTN6 ,   NULL, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_20, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_15, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_12, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_10, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_7_5, BIND_NONE,   NULL, 0, 0, },
   };
 
 #elif DEF_SET_DEVTEST02 == 1
@@ -250,16 +361,16 @@ int g_syncINPin = -1;
   */
   
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind  -  - */
-    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   0, 0, },
+    /*InputPin    OutputPin    Timing      Bind         MacroFunc  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
     { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_BTN3 | 
                                            BIND_BTN4 | 
                                            BIND_BTN5 | 
-                                           BIND_BTN6 ,   0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_20, BIND_NONE,   0, 0, },
-    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_12, BIND_NONE,   0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_10, BIND_NONE,   0, 0, },
+                                           BIND_BTN6 ,   NULL, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_20, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_15, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_12, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_10, BIND_NONE,   NULL, 0, 0, },
   };
 
 #else
@@ -277,13 +388,13 @@ int g_syncINPin = -1;
    * [6] …… ボタン6(Auto有効時 30連)
   */
   SBTNINFO g_BtnInfo[BTN] = {
-    /*InputPin    OutputPin    Timing      Bind  -  - */
-    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   0, 0, },
-    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   0, 0, },
+    /*InputPin    OutputPin    Timing      Bind         MacroFunc  -  - */
+    { INPIN_BTN1, OUTPIN_BTN1, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN2, OUTPIN_BTN2, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN3, OUTPIN_BTN3, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN4, OUTPIN_BTN4, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN5, OUTPIN_BTN5, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
+    { INPIN_BTN6, OUTPIN_BTN6, RPD_SPD_30, BIND_NONE,   NULL, 0, 0, },
   };
 
 #endif
@@ -374,6 +485,7 @@ void SetupButton(void)
 
     g_BtnInfo[ii].counter = 0;
     g_BtnInfo[ii].enable = 0;
+    g_BtnInfo[ii].outStatus = HIGH;
     g_BtnInfo[ii].rapidTiming = g_BtnInfo[ii].timing * RPD_DIV;
 
     pinMode(INpin, INPUT);
@@ -540,6 +652,7 @@ void oneStep(void)
     int BINDpin = -1;
     int BINDtiming = RPD_SPD_MIN * RPD_DIV;
     int BINDval = HIGH;
+
     if( bind != BIND_NONE )
     {
       for( int jj = 0; jj < BTN; jj++ )
@@ -558,13 +671,26 @@ void oneStep(void)
     }
     int INval = digitalRead(INpin);
 
+    /* マクロ関数の指定がある場合、実行して次のボタンへ */
+    if( INval == LOW && g_BtnInfo[ii].macroFunc != NULL )
+    {
+      g_BtnInfo[ii].macroFunc();
+      continue;
+    }
+    
     if( BINDval == LOW || g_BtnInfo[ii].enable != 0 ){
       /* 連射の場合の動作 */
       oneStepAuto(ii, OUTpin, INval, BINDval, BINDtiming);
     }else{
       /* 現在の状態を設定する */
-      digitalWrite(OUTpin, INval);
+      g_BtnInfo[ii].outStatus = INval;
     }
+  }
+  for( int ii = 0; ii < BTN; ii++ )
+  {
+    int OUTpin = g_BtnInfo[ii].outputPin;
+    int OUTstatus = g_BtnInfo[ii].outStatus;
+    digitalWrite(OUTpin, OUTstatus);
   }
   
 } /* oneStep */
@@ -591,14 +717,203 @@ void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming)
       g_BtnInfo[num].counter = 0;
 
       int val = digitalRead(OUTpin);
-      digitalWrite(OUTpin, (val==HIGH ? LOW : HIGH));
+      g_BtnInfo[num].outStatus = (val==HIGH ? LOW : HIGH);
     }
   }else{
     /* ボタンが押されていない状態 */
     /* ボタンを押したタイミングでLOWになるように設定 */
     g_BtnInfo[num].counter = g_BtnInfo[num].rapidTiming;
-    digitalWrite(OUTpin, HIGH);
+    g_BtnInfo[num].outStatus = HIGH;
   }
 } /* oneStepAuto */
 
+/******************************************************************************/
+/*
+ * oneStep_DBZ_VRVS_Macro1
+ * 
+ * DBZ_VRVS用マクロ
+ * ボタン1/ボタン2の交互連(秒間30連)
+ * 
+ * ボタン1:LHLHLHLH....
+ * ボタン2:HLHLHLHL....
+*/
+void oneStep_DBZ_VRVS_Macro1(void)
+{
+  static int l_flag = 0;
+  static int l_counter = 0;
+  int l_papidTiming = RPD_SPD_30 * RPD_DIV;
+
+  l_counter++;
+  if( l_counter >= l_papidTiming ) {
+    l_counter = 0;
+
+    l_flag = (l_flag==0 ? 1 : 0);
+  }
+
+  g_BtnInfo[0].outStatus = (l_flag==0 ? LOW : HIGH);
+  g_BtnInfo[1].outStatus = (l_flag==1 ? LOW : HIGH);
+
+} /* oneStep_DBZ_VRVS_Macro1 */
+/******************************************************************************/
+/*
+ * oneStep_DBZ_VRVS_Macro2
+ * 
+ * DBZ_VRVS用マクロ
+ * ボタン1/ボタン2の交互連
+ * 
+ * ボタン1:LHHHLHHH....
+ * ボタン2:HHLHHHLH....
+*/
+void oneStep_DBZ_VRVS_Macro2(void)
+{
+  static int l_flag = 0;
+  static int l_counter = 0;
+  int l_papidTiming = RPD_SPD_30 * RPD_DIV;
+
+  l_counter++;
+  if( l_counter >= l_papidTiming ) {
+    l_counter = 0;
+
+    l_flag++;
+    if(l_flag >= 4 ) l_flag = 0;
+  }
+
+  g_BtnInfo[0].outStatus = (l_flag==0 ? LOW : HIGH);
+  g_BtnInfo[1].outStatus = (l_flag==2 ? LOW : HIGH);
+
+} /* oneStep_DBZ_VRVS_Macro2 */
+/******************************************************************************/
+/*
+ * oneStep_AnB_Macro
+ * 
+ * ボタン1/ボタン2の同時押しボタン
+ * 
+*/
+void oneStep_AnB_Macro(void)
+{
+  g_BtnInfo[0].outStatus = LOW;
+  g_BtnInfo[1].outStatus = LOW;
+} /* oneStep_AnB_Macro */
+/******************************************************************************/
+/*
+ * oneStep_BnC_Macro
+ * 
+ * ボタン2/ボタン3の同時押しボタン
+ * 
+*/
+void oneStep_BnC_Macro(void)
+{
+  g_BtnInfo[1].outStatus = LOW;
+  g_BtnInfo[2].outStatus = LOW;
+} /* oneStep_BnC_Macro */
+/******************************************************************************/
+/*
+ * oneStep_CnD_Macro
+ * 
+ * ボタン3/ボタン4の同時押しボタン
+ * 
+*/
+void oneStep_CnD_Macro(void)
+{
+  g_BtnInfo[2].outStatus = LOW;
+  g_BtnInfo[3].outStatus = LOW;
+} /* oneStep_CnD_Macro */
+/******************************************************************************/
+/*
+ * oneStep_DnE_Macro
+ * 
+ * ボタン4/ボタン5の同時押しボタン
+ * 
+*/
+void oneStep_DnE_Macro(void)
+{
+  g_BtnInfo[3].outStatus = LOW;
+  g_BtnInfo[4].outStatus = LOW;
+} /* oneStep_DnE_Macro */
+/******************************************************************************/
+/*
+ * oneStep_EnF_Macro
+ * 
+ * ボタン5/ボタン6の同時押しボタン
+ * 
+*/
+void oneStep_EnF_Macro(void)
+{
+  g_BtnInfo[4].outStatus = LOW;
+  g_BtnInfo[5].outStatus = LOW;
+} /* oneStep_EnF_Macro */
+/******************************************************************************/
+/*
+ * oneStep_AnD_Macro
+ * 
+ * ボタン1/ボタン4の同時押しボタン
+ * 
+*/
+void oneStep_AnD_Macro(void)
+{
+  g_BtnInfo[0].outStatus = LOW;
+  g_BtnInfo[3].outStatus = LOW;
+} /* oneStep_AnD_Macro */
+/******************************************************************************/
+/*
+ * oneStep_BnE_Macro
+ * 
+ * ボタン2/ボタン5の同時押しボタン
+ * 
+*/
+void oneStep_BnE_Macro(void)
+{
+  g_BtnInfo[1].outStatus = LOW;
+  g_BtnInfo[4].outStatus = LOW;
+} /* oneStep_BnE_Macro */
+/******************************************************************************/
+/*
+ * oneStep_CnF_Macro
+ * 
+ * ボタン3/ボタン6の同時押しボタン
+ * 
+*/
+void oneStep_CnF_Macro(void)
+{
+  g_BtnInfo[2].outStatus = LOW;
+  g_BtnInfo[5].outStatus = LOW;
+} /* oneStep_CnF_Macro */
+/******************************************************************************/
+/*
+ * oneStep_AnC_Macro
+ * 
+ * ボタン1/ボタン3の同時押しボタン
+ * 
+*/
+void oneStep_AnC_Macro(void)
+{
+  g_BtnInfo[0].outStatus = LOW;
+  g_BtnInfo[2].outStatus = LOW;
+} /* oneStep_AnC_Macro */
+/******************************************************************************/
+/*
+ * oneStep_AnBnC_Macro
+ * 
+ * ボタン1/ボタン2/ボタン3の同時押しボタン
+ * 
+*/
+void oneStep_AnBnC_Macro(void)
+{
+  g_BtnInfo[0].outStatus = LOW;
+  g_BtnInfo[1].outStatus = LOW;
+  g_BtnInfo[2].outStatus = LOW;
+} /* oneStep_AnBnC_Macro */
+/******************************************************************************/
+/*
+ * oneStep_DnEnF_Macro
+ * 
+ * ボタン4/ボタン5/ボタン6の同時押しボタン
+ * 
+*/
+void oneStep_DnEnF_Macro(void)
+{
+  g_BtnInfo[3].outStatus = LOW;
+  g_BtnInfo[4].outStatus = LOW;
+  g_BtnInfo[5].outStatus = LOW;
+} /* oneStep_DnEnF_Macro */
 /******************************************************************************/
