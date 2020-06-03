@@ -106,8 +106,8 @@ typedef struct SBTNINFO
 } SBTNINFO;
 
 /******************************************************************************/
-void SetupButton(void);
-void ShowInfo(void);
+void setupButton(void);
+void showInfo(void);
 int ASyncWait(void);
 int VSyncWait(void);
 void autoSetup(void);
@@ -141,8 +141,8 @@ int g_syncINPin = -1;
 
 void setup() {
   delay(3000);
-  SetupButton();
-  ShowInfo();
+  setupButton();
+  showInfo();
 } /* setup */
 
 /******************************************************************************/
@@ -172,7 +172,7 @@ void loop() {
 } /* loop */
 
 /******************************************************************************/
-void SetupButton(void)
+void setupButton(void)
 {
   // 連射設定ボタンの設定
   pinMode(g_autoPin, INPUT);
@@ -250,9 +250,9 @@ void SetupButton(void)
     pinMode(OUTpin, OUTPUT);
     digitalWrite(OUTpin, HIGH);
   }
-} /* SetupButton */
+} /* setupButton */
 /******************************************************************************/
-void ShowInfo( void )
+void showInfo( void )
 {
   Serial.print( "Auto pin=[" );
   Serial.print( g_autoPin );
@@ -311,7 +311,7 @@ void ShowInfo( void )
 
   }
   
-} /* ShowInfo */
+} /* showInfo */
 /******************************************************************************/
 void autoSetup(void)
 {
