@@ -9,6 +9,9 @@
  * @link       https://github.com/xx20170204xx/ArduinoRapidFire_NEOGEO
  */
 
+#ifndef __RAPIDFIRE_MACRO_H__
+#define __RAPIDFIRE_MACRO_H__
+
 void oneStep_DBZ_VRVS_Macro1(void);
 void oneStep_DBZ_VRVS_Macro2(void);
 
@@ -23,5 +26,7 @@ void oneStep_CnF_Macro(void);
 void oneStep_AnC_Macro(void);
 void oneStep_AnBnC_Macro(void);
 void oneStep_DnEnF_Macro(void);
+
+#endif
 
 /* EOF */

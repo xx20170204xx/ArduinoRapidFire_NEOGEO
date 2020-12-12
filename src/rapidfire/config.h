@@ -11,6 +11,9 @@
 
 /**************************************/
 
+#ifndef __CONFIG_H__
+#define __CONFIG_H__
+
 // ボタン数
 #define BTN 6
 
@@ -273,5 +276,7 @@
   };
 
 #endif
+
+#endif /* #ifndef __CONFIG_H__ */
 
 /* EOF */

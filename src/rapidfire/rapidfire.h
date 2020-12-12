@@ -9,6 +9,8 @@
  * @link       https://github.com/xx20170204xx/ArduinoRapidFire_NEOGEO
  */
 
+#ifndef __RAPIDFIRE_H__
+#define __RAPIDFIRE_H__
 
 /* 連射用の定数 */
 #define RPD_SPD_30  (1)   /*  30連 */
@@ -113,3 +115,6 @@ void autoClear(void);
 void oneStep(void);
 void oneStepAuto(int num, int OUTpin, int INval, int BINDval, int BINDtiming);
 
+#endif
+
+/* EOF */
