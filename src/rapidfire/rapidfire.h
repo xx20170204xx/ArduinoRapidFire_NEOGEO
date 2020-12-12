@@ -19,6 +19,12 @@
 #define RPD_SPD_12  (4)   /*  12連 */
 #define RPD_SPD_10  (5)   /*  10連 */
 #define RPD_SPD_7_5 (7)   /* 7.5連 */
+#define RPD_SPD_6   (9)   /*   6連 */
+#define RPD_SPD_5   (11)  /*   5連 */
+#define RPD_SPD_4   (14)  /*   4連 */
+#define RPD_SPD_3   (19)  /*   3連 */
+#define RPD_SPD_2_5 (23)  /* 2.5連 */
+#define RPD_SPD_2   (29)  /*   2連 */
 #define RPD_SPD_MIN (59)  /*   1連 */
 
 /* Bind用定数 */
